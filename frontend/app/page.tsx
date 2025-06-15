@@ -5,6 +5,7 @@ import { PaperAirplaneIcon } from '@heroicons/react/24/solid'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import remarkBreaks from 'remark-breaks'
 import { Components } from 'react-markdown'
 
 interface CodeProps {
@@ -232,12 +233,14 @@ export default function Home() {
                   {message.role === 'user' ? 'You' : 'AI Assistant'}:
                 </div>
                 <div className="bg-dracula-background/30 p-6 rounded-lg border border-dracula-comment/30">
-                  <ReactMarkdown 
-                    remarkPlugins={[remarkGfm]}
-                    components={components}
-                  >
-                    {message.content}
-                  </ReactMarkdown>
+                  <div className="markdown-content">
+                    <ReactMarkdown
+                      components={components}
+                      remarkPlugins={[remarkGfm, remarkBreaks]}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
             ))}
