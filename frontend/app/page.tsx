@@ -15,13 +15,40 @@ interface CodeProps {
   children?: React.ReactNode
 }
 
+// Add DraculaLoading component
+const DraculaLoading = () => (
+  <div className="flex flex-col items-center justify-center p-8">
+    <div className="relative w-24 h-24 mb-4">
+      <div className="absolute inset-0 bg-dracula-purple/20 rounded-full animate-pulse"></div>
+      <div className="absolute inset-2 bg-dracula-purple/40 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+      <div className="absolute inset-4 bg-dracula-purple/60 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+      <div className="absolute inset-6 bg-dracula-purple/80 rounded-full animate-pulse" style={{ animationDelay: '0.6s' }}></div>
+      <div className="absolute inset-8 bg-dracula-purple rounded-full animate-pulse" style={{ animationDelay: '0.8s' }}></div>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <svg className="w-12 h-12 text-dracula-pink" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+    <div className="text-dracula-pink text-sm font-medium">Processing your request...</div>
+  </div>
+)
+
 export default function Home() {
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant', content: string }>>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [apiKey, setApiKey] = useState('')
+  const [isKeySet, setIsKeySet] = useState(false)
   const chatContainerRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const handleApiKeySubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (apiKey.trim()) {
+      setIsKeySet(true)
+    }
+  }
 
   // Optimized scroll behavior
   const scrollToBottom = () => {
@@ -56,21 +83,21 @@ export default function Home() {
     },
     ul({ node, children, ...props }) {
       return (
-        <ul className="list-disc list-inside mb-4 space-y-2 text-dracula-foreground" {...props}>
+        <ul className="list-disc list-inside mb-4 space-y-2 text-dracula-foreground inline-block" {...props}>
           {children}
         </ul>
       )
     },
     ol({ node, children, ...props }) {
       return (
-        <ol className="list-decimal list-inside mb-4 space-y-2 text-dracula-foreground" {...props}>
+        <ol className="list-decimal list-inside mb-4 space-y-2 text-dracula-foreground inline-block" {...props}>
           {children}
         </ol>
       )
     },
     li({ node, children, ...props }) {
       return (
-        <li className="text-dracula-foreground" {...props}>
+        <li className="text-dracula-foreground inline-block" {...props}>
           {children}
         </li>
       )
@@ -192,88 +219,104 @@ export default function Home() {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(189,147,249,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(189,147,249,0.1)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
 
       <div className="max-w-6xl mx-auto relative">
-        <header className="mb-6 text-center relative">
+        <header className="mb-4 text-center relative">
           {/* Decorative Circle */}
           <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-40 h-40 border-2 border-dracula-purple/30 rounded-full animate-pulse"></div>
           <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-32 border-2 border-dracula-pink/30 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
           
-          <h1 className="text-4xl font-bold text-dracula-pink mb-2 glow-text relative">
-            AI Nexus
-            <div className="absolute -top-4 -right-4 w-8 h-8 bg-dracula-purple rounded-full animate-pulse"></div>
+          <h1 className="text-3xl font-bold text-dracula-pink mb-1 glow-text relative">
+            Dracula Chat
           </h1>
-          <p className="text-dracula-comment text-sm">
-            Powered by Advanced AI Technology
+          <p className="text-sm text-dracula-comment">
+            Your AI companion in the dark
           </p>
         </header>
 
-        <div className="mb-4 relative">
-          <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-dracula-green rounded-full animate-pulse"></div>
-          <input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="Enter your OpenAI API key"
-            className="dracula-input w-full"
-          />
-        </div>
-
-        <div 
-          ref={chatContainerRef}
-          className="bg-dracula-background/50 backdrop-blur-sm rounded-lg shadow-2xl border border-dracula-purple/20 p-6 h-[calc(100vh-12rem)] flex flex-col"
-        >
-          <div className="flex-1 overflow-y-auto space-y-4 p-6">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className="message-container"
-              >
-                <div className={`font-semibold mb-2 ${
-                  message.role === 'user' ? 'text-dracula-cyan' : 'text-dracula-green'
-                }`}>
-                  {message.role === 'user' ? 'You' : 'AI Assistant'}:
+        {!isKeySet ? (
+          <div className="bg-dracula-background/50 backdrop-blur-sm rounded-lg shadow-2xl border border-dracula-purple/20 p-6">
+            <div className="max-w-md mx-auto">
+              <h2 className="text-xl font-bold text-dracula-pink mb-4">Enter Your API Key</h2>
+              <form onSubmit={handleApiKeySubmit} className="space-y-4">
+                <div>
+                  <input
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="Enter your OpenAI API key"
+                    className="w-full px-4 py-2 bg-dracula-background/50 border border-dracula-purple/30 rounded-lg text-dracula-foreground placeholder-dracula-comment focus:outline-none focus:border-dracula-pink"
+                  />
                 </div>
-                <div className="bg-dracula-background/30 p-6 rounded-lg border border-dracula-comment/30">
-                  <div className="markdown-content">
-                    <ReactMarkdown
-                      components={components}
-                      remarkPlugins={[remarkGfm, remarkBreaks]}
-                    >
-                      {message.content}
-                    </ReactMarkdown>
+                <button
+                  type="submit"
+                  className="w-full px-4 py-2 bg-dracula-purple text-white rounded-lg hover:bg-dracula-pink transition-colors"
+                >
+                  Start Chatting
+                </button>
+              </form>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-dracula-background/50 backdrop-blur-sm rounded-lg shadow-2xl border border-dracula-purple/20 p-4 h-[calc(100vh-8rem)] flex flex-col">
+            <div 
+              ref={chatContainerRef}
+              className="flex-1 overflow-y-auto space-y-4 p-4 scroll-smooth will-change-scroll"
+            >
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] ${
+                      message.role === 'user'
+                        ? 'bg-dracula-purple/20'
+                        : 'bg-dracula-background/30'
+                    } p-4 rounded-lg border ${
+                      message.role === 'user'
+                        ? 'border-dracula-purple/30'
+                        : 'border-dracula-comment/30'
+                    }`}
+                  >
+                    <div className="markdown-content">
+                      <ReactMarkdown
+                        components={components}
+                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="typing-indicator">
-                <div className="typing-dot"></div>
-                <div className="typing-dot"></div>
-                <div className="typing-dot"></div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
+              ))}
+              {/* Loading indicator */}
+              {isLoading && (
+                <div className="flex items-center justify-center p-4">
+                  <DraculaLoading />
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
 
-        <form onSubmit={handleSubmit} className="flex gap-4 relative">
-          <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-dracula-green rounded-full animate-pulse"></div>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            className="dracula-input flex-1"
-            disabled={isLoading || !apiKey}
-          />
-          <button
-            type="submit"
-            className="dracula-button-primary flex items-center gap-2"
-            disabled={isLoading || !apiKey}
-          >
-            <PaperAirplaneIcon className="h-5 w-5" />
-            Send
-          </button>
-        </form>
+            <form onSubmit={handleSubmit} className="mt-4">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Type your message..."
+                  className="flex-1 px-4 py-2 bg-dracula-background/50 border border-dracula-purple/30 rounded-lg text-dracula-foreground placeholder-dracula-comment focus:outline-none focus:border-dracula-pink"
+                />
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-dracula-purple text-white rounded-lg hover:bg-dracula-pink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <PaperAirplaneIcon className="h-5 w-5" />
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     </main>
   )
